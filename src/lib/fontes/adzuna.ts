@@ -9,6 +9,8 @@ export type AdzunaJob = {
   description?: string;
   redirect_url: string;
   created?: string;
+  salary_min?: number;
+  salary_max?: number;
   company?: { display_name?: string };
   location?: { display_name?: string; area?: string[] };
 };
@@ -33,6 +35,8 @@ export function converterAdzuna(job: AdzunaJob, palavraChave: string, agora: str
     url: job.redirect_url,
     publicadaEm: job.created ?? null,
     descricao: (job.description ?? "").replace(/<\/?[^>]+>/g, ""),
+    salarioMin: job.salary_min ?? null,
+    salarioMax: job.salary_max ?? null,
     palavraChave,
     encontradaEm: agora,
   };

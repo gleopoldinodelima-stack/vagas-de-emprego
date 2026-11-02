@@ -8,8 +8,8 @@ App + dashboard que lê seu currículo, busca vagas por palavra-chave e região,
 
 - [x] **1. Currículo e alvo** – upload do PDF, extração do perfil com Claude, configuração de palavras-chave e região
 - [x] **2. Radar de vagas** – Gupy (busca pública) + Adzuna (opcional, com chave), filtro por palavra-chave e região
-- [ ] **3. Currículo sob medida** – versão adaptada por vaga + nota de compatibilidade
-- [ ] **4. Dashboard** – vagas, currículos gerados e status das candidaturas
+- [x] **3. Currículo sob medida** – versão adaptada por vaga (PDF), mensagem de apresentação e nota de compatibilidade
+- [x] **4. Painel** – abas Painel, Vagas (relatório + status), Meu currículo e Configuração (palavras, exclusões, pretensão salarial, região, modo automático)
 - [ ] **5. 24 horas** – agendador rodando as buscas sozinho
 
 ## Rodando

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { converterGupy, type GupyJob } from "../src/lib/fontes/gupy";
 import { converterAdzuna } from "../src/lib/fontes/adzuna";
 import { filtrar } from "../src/lib/radar";
-import { casaPalavraChave, mesclar, naRegiao } from "../src/lib/vagas";
+import { abaixoDaPretensao, casaPalavraChave, mesclar, naRegiao, temExcluida } from "../src/lib/vagas";
 import { CONFIG_PADRAO } from "../src/lib/schemas";
 
 const T = "2026-11-02T00:00:00.000Z";
@@ -58,5 +58,21 @@ describe("filtro e mescla", () => {
     expect(inéditas).toHaveLength(0);
     expect(todas[0].titulo).toBe("Assistente de Logística I");
     expect(todas[0].encontradaEm).toBe("2026-11-01T00:00:00.000Z");
+  });
+});
+
+describe("exclusões e salário", () => {
+  it("ignora estágio e jovem aprendiz", () => {
+    expect(temExcluida("Estagiário de Logística", CONFIG_PADRAO.palavrasExcluidas)).toBe(true);
+    expect(temExcluida("Assistente de Logística", CONFIG_PADRAO.palavrasExcluidas)).toBe(false);
+    const v = converterGupy(job({ name: "Jovem Aprendiz Assistente de Logística" }), "assistente de logística", T);
+    expect(filtrar([v], CONFIG_PADRAO)).toHaveLength(0);
+  });
+  it("só corta salário anunciado abaixo da pretensão", () => {
+    const v = converterGupy(job({}), "x", T);
+    expect(abaixoDaPretensao(v, 3000)).toBe(false); // sem salário passa
+    expect(abaixoDaPretensao({ ...v, salarioMax: 2500 }, 3000)).toBe(true);
+    expect(abaixoDaPretensao({ ...v, salarioMax: 3500 }, 3000)).toBe(false);
+    expect(abaixoDaPretensao({ ...v, salarioMax: 2500 }, null)).toBe(false);
   });
 });

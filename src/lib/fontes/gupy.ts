@@ -1,7 +1,8 @@
-// Busca pública de vagas da Gupy (a mesma usada pelo portal portal.gupy.io).
+// Busca pública de vagas da Gupy: a mesma rota que o site portal.gupy.io usa.
+// (A antiga portal.api.gupy.io/api/job passou a responder 404 em 2026-11.)
 import type { Vaga } from "../vagas";
 
-const BASE = "https://portal.api.gupy.io/api/job";
+const BASE = "https://portal.gupy.io/api/job-search/jobs";
 const POR_PAGINA = 100;
 const MAX_PAGINAS = 5;
 
@@ -49,7 +50,7 @@ export async function buscarGupy(palavraChave: string, agora = new Date().toISOS
   const vagas: Vaga[] = [];
   for (let pagina = 0; pagina < MAX_PAGINAS; pagina++) {
     const url = new URL(BASE);
-    url.searchParams.set("name", palavraChave);
+    url.searchParams.set("jobName", palavraChave);
     url.searchParams.set("offset", String(pagina * POR_PAGINA));
     url.searchParams.set("limit", String(POR_PAGINA));
 

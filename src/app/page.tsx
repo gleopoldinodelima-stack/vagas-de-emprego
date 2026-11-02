@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import type { Config, Perfil } from "@/lib/schemas";
+import type { Vaga } from "@/lib/vagas";
+import type { ResultadoRadar } from "@/lib/radar";
 
 export default function Home() {
   const [perfil, setPerfil] = useState<Perfil | null>(null);
@@ -9,11 +11,29 @@ export default function Home() {
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [salvo, setSalvo] = useState(false);
+  const [vagas, setVagas] = useState<Vaga[]>([]);
+  const [rodada, setRodada] = useState<ResultadoRadar | null>(null);
+  const [buscando, setBuscando] = useState(false);
 
   useEffect(() => {
     fetch("/api/curriculo").then((r) => r.json()).then((d) => setPerfil(d.perfil));
     fetch("/api/config").then((r) => r.json()).then((d) => setConfig(d.config));
+    fetch("/api/radar").then((r) => r.json()).then((d) => {
+      setVagas(d.vagas);
+      setRodada(d.ultimaRodada);
+    });
   }, []);
+
+  async function rodarRadar() {
+    setBuscando(true);
+    try {
+      const d = await fetch("/api/radar", { method: "POST" }).then((r) => r.json());
+      setVagas(d.vagas);
+      setRodada(d.resultado);
+    } finally {
+      setBuscando(false);
+    }
+  }
 
   async function enviarCurriculo(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -126,6 +146,42 @@ export default function Home() {
           {salvo && <span className="ml-3 text-green-400">Salvo.</span>}
         </section>
       )}
+
+      <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-xl font-semibold">3. Radar de vagas</h2>
+          <button onClick={rodarRadar} disabled={buscando}
+            className="rounded bg-yellow-400 px-4 py-2 font-semibold text-black disabled:opacity-50">
+            {buscando ? "Varrendo Gotham..." : "Rodar radar agora"}
+          </button>
+        </div>
+        {rodada && (
+          <p className="mb-3 text-sm text-zinc-400">
+            Última rodada {new Date(rodada.rodouEm).toLocaleString("pt-BR")}: {rodada.encontradas} na região,{" "}
+            {rodada.inéditas} novas, {rodada.total} no total.
+            {rodada.erros.length > 0 && <span className="text-red-400"> Falhas: {rodada.erros.join("; ")}</span>}
+          </p>
+        )}
+        {vagas.length === 0 ? (
+          <p className="text-sm text-zinc-500">Nenhuma vaga ainda. Rode o radar.</p>
+        ) : (
+          <ul className="divide-y divide-zinc-800 text-sm">
+            {vagas.map((v) => (
+              <li key={v.id} className="flex flex-wrap items-baseline justify-between gap-2 py-2">
+                <div>
+                  <a href={v.url} target="_blank" rel="noreferrer" className="font-medium hover:text-yellow-400">
+                    {v.titulo}
+                  </a>
+                  <p className="text-zinc-400">
+                    {[v.empresa, v.remoto ? "Remoto" : v.cidade, v.modelo].filter(Boolean).join(" · ")}
+                  </p>
+                </div>
+                <span className="rounded bg-zinc-800 px-2 py-0.5 text-xs uppercase text-zinc-400">{v.fonte}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </main>
   );
 }

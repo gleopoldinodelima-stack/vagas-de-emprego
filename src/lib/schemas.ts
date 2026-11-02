@@ -41,6 +41,10 @@ export const ConfigSchema = z.object({
   cidadesAlvo: z.array(z.string()),
   raioKm: z.number().int().positive(),
   aceitaRemoto: z.boolean(),
+  palavrasExcluidas: z.array(z.string()),
+  pretensaoSalarial: z.number().nonnegative().nullable(),
+  modoAutomatico: z.boolean().describe("Preparar currículo sozinho para vagas novas"),
+  notaMinima: z.number().int().min(0).max(100),
 });
 export type Config = z.infer<typeof ConfigSchema>;
 
@@ -58,4 +62,37 @@ export const CONFIG_PADRAO: Config = {
   ],
   raioKm: 35,
   aceitaRemoto: true,
+  palavrasExcluidas: ["estágio", "estagiário", "jovem aprendiz"],
+  pretensaoSalarial: null,
+  modoAutomatico: false,
+  notaMinima: 70,
+};
+
+// Candidatura: o que o Claude preparou para uma vaga e em que pé ela está
+export const STATUS = ["nova", "preparada", "candidatado", "entrevista", "recusado", "descartada"] as const;
+export type Status = (typeof STATUS)[number];
+
+export const AnaliseSchema = z.object({
+  nota: z.number().int().min(0).max(100).describe("Compatibilidade do candidato com a vaga, 0 a 100"),
+  pontosFortes: z.array(z.string()).describe("Até 4 motivos pelos quais o candidato combina"),
+  lacunas: z.array(z.string()).describe("Até 3 requisitos da vaga que o currículo não mostra"),
+  resumo: z.string().describe("Resumo profissional reescrito para esta vaga, 3-4 frases"),
+  experiencias: z.array(
+    z.object({
+      empresa: z.string(),
+      cargo: z.string(),
+      periodo: z.string(),
+      atividades: z.array(z.string()).describe("Reordenadas e reescritas com foco na vaga, sem inventar"),
+    }),
+  ),
+  habilidades: z.array(z.string()).describe("Habilidades reais do candidato, as mais relevantes primeiro"),
+  carta: z.string().describe("Mensagem de apresentação curta (até 120 palavras) para enviar com a candidatura"),
+});
+export type Analise = z.infer<typeof AnaliseSchema>;
+
+export type Candidatura = {
+  vagaId: string;
+  status: Status;
+  analise: Analise | null;
+  atualizadoEm: string;
 };

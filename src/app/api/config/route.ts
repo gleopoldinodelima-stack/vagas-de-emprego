@@ -1,10 +1,11 @@
 import { connection } from "next/server";
-import { ler, salvar } from "@/lib/storage";
-import { CONFIG_PADRAO, ConfigSchema, type Config } from "@/lib/schemas";
+import { salvar } from "@/lib/storage";
+import { lerConfig } from "@/lib/config";
+import { ConfigSchema } from "@/lib/schemas";
 
 export async function GET() {
   await connection(); // sempre ler o arquivo atual, sem pré-renderizar
-  return Response.json({ config: (await ler<Config>("config")) ?? CONFIG_PADRAO });
+  return Response.json({ config: await lerConfig() });
 }
 
 export async function PUT(request: Request) {

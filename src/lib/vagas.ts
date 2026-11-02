@@ -12,6 +12,8 @@ export type Vaga = {
   url: string;
   publicadaEm: string | null;
   descricao: string;
+  salarioMin?: number | null;
+  salarioMax?: number | null;
   palavraChave: string;
   encontradaEm: string;
 };
@@ -25,6 +27,19 @@ export function naRegiao(vaga: Vaga, config: Config): boolean {
   if (!vaga.cidade) return false;
   const cidade = normalizar(vaga.cidade);
   return config.cidadesAlvo.some((alvo) => normalizar(alvo) === cidade);
+}
+
+/** O título tem alguma palavra excluída (ex.: estágio)? */
+export function temExcluida(titulo: string, excluidas: string[]): boolean {
+  const t = normalizar(titulo);
+  return excluidas.some((e) => e.trim() && t.includes(normalizar(e)));
+}
+
+/** Salário anunciado abaixo da pretensão? Vagas sem salário passam. */
+export function abaixoDaPretensao(vaga: Vaga, pretensao: number | null): boolean {
+  if (!pretensao) return false;
+  const teto = vaga.salarioMax ?? vaga.salarioMin;
+  return teto != null && teto < pretensao;
 }
 
 /** O título casa com a palavra-chave? Todas as palavras precisam aparecer. */

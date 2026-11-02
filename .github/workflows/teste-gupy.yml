@@ -11,33 +11,14 @@ jobs:
       - name: Endpoint cru
         run: |
           curl -sS -w "\nHTTP %{http_code}\n" "https://portal.api.gupy.io/api/job?name=assistente%20de%20logistica&offset=0&limit=3" | head -c 3000 || true
-      - name: Descobrir API atual do portal
+      - name: Formato da resposta
         run: |
-          set +e
-          curl -sSL -o portal.html "https://portal.gupy.io/job-search/term=logistica"
-          echo "--- NEXT_DATA"
-          python3 - <<'PY'
-          import re,json
-          h=open("portal.html").read()
-          m=re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>',h,re.S)
-          if not m: print("sem __NEXT_DATA__")
-          else:
-            d=json.loads(m.group(1)); pp=d.get("props",{}).get("pageProps",{})
-            print("pageProps keys:",list(pp.keys()))
-            def walk(o,path="",depth=0):
-              if depth>4: return
-              if isinstance(o,dict):
-                for k,v in o.items(): walk(v,path+"."+k,depth+1)
-              elif isinstance(o,list) and o and isinstance(o[0],dict):
-                print("LISTA",path,len(o)); print(json.dumps(o[0],ensure_ascii=False)[:1500])
-            walk(pp)
-          PY
-          echo "--- contexto no JS"
-          for js in $(grep -oE '/_next/static/[^"]+\.js' portal.html | sort -u); do
-            curl -sSL "https://portal.gupy.io$js" | grep -oE '.{300}/api/job-search/jobs.{300}' ; done | head -5
-          echo "--- sondas"
-          for u in "https://portal.gupy.io/api/job-search/jobs?jobName=logistica&limit=2" "https://portal.gupy.io/api/job-search/jobs?term=logistica&limit=2" "https://portal.gupy.io/api/job-search/jobs?name=logistica&offset=0&limit=2" "https://employability-portal.gupy.io/api/job-search/jobs?jobName=logistica&limit=2"; do
-            echo "$u -> $(curl -sS -o b -w '%{http_code} %{content_type}' "$u") $(head -c 1500 b | tr '\n' ' ')"; done
+          curl -sS "https://portal.gupy.io/api/job-search/jobs?jobName=assistente%20de%20logistica&limit=100&offset=0" -o r.json -w "HTTP %{http_code}\n"
+          python3 -c "
+          import json; d=json.load(open('r.json'))
+          print('chaves topo:', {k:(v if k!='data' else len(v)) for k,v in d.items()})
+          j=d['data'][0]; j.pop('description',None); print(json.dumps(j,ensure_ascii=False,indent=1))
+          "
       - uses: actions/setup-node@v4
         with:
           node-version: 22

@@ -11,9 +11,19 @@ jobs:
       - name: Endpoint cru
         run: |
           curl -sS -w "\nHTTP %{http_code}\n" "https://portal.api.gupy.io/api/job?name=assistente%20de%20logistica&offset=0&limit=3" | head -c 3000 || true
+      - name: Descobrir API atual do portal
+        run: |
+          set +e
+          curl -sSL -o portal.html -w "portal.gupy.io HTTP %{http_code}\n" "https://portal.gupy.io/job-search/term=logistica"
+          grep -oE 'https?://[a-zA-Z0-9.-]*gupy[a-zA-Z0-9.-]*(/[a-zA-Z0-9/_.-]*)?' portal.html | sort -u | head -40
+          for js in $(grep -oE '/_next/static/[^"]+\.js' portal.html | sort -u | head -60); do
+            curl -sSL "https://portal.gupy.io$js" | grep -oE '"(https?://[^"]*gupy[^"]*|/api/[^"]*)"' ; done | sort -u | head -60
+          echo "--- candidatos"
+          for u in "https://portal.api.gupy.io/api/v1/jobs?jobName=logistica&limit=2" "https://employability-portal.gupy.io/api/v1/jobs?jobName=logistica&limit=2" "https://portal.gupy.io/api/v1/jobs?jobName=logistica&limit=2" "https://portal.gupy.io/api/job?name=logistica&limit=2"; do
+            echo "$u -> $(curl -sS -o b -w '%{http_code}' "$u") $(head -c 300 b | tr '\n' ' ')"; done
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: npm ci
       - name: Radar (Gupy + filtro)
-        run: npx --yes tsx scripts/teste-gupy.ts
+        run: npx --yes tsx scripts/teste-gupy.mts

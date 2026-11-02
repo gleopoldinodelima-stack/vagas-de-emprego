@@ -97,6 +97,10 @@ export default function Home() {
                 defaultValue={config.palavrasChave.join(", ")}
                 onChange={(e) => setConfig({ ...config, palavrasChave: lista(e.target.value) })} />
             </label>
+            <label className="text-sm">Área
+              <input className="mt-1 w-full rounded bg-zinc-800 p-2" value={config.area}
+                onChange={(e) => setConfig({ ...config, area: e.target.value })} />
+            </label>
             <label className="text-sm">Cidade base
               <input className="mt-1 w-full rounded bg-zinc-800 p-2" value={config.cidadeBase}
                 onChange={(e) => setConfig({ ...config, cidadeBase: e.target.value })} />

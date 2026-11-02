@@ -36,6 +36,7 @@ export type Perfil = z.infer<typeof PerfilSchema>;
 // Configuração da busca de vagas
 export const ConfigSchema = z.object({
   palavrasChave: z.array(z.string().min(1)).min(1),
+  area: z.string(),
   cidadeBase: z.string(),
   cidadesAlvo: z.array(z.string()),
   raioKm: z.number().int().positive(),
@@ -44,7 +45,8 @@ export const ConfigSchema = z.object({
 export type Config = z.infer<typeof ConfigSchema>;
 
 export const CONFIG_PADRAO: Config = {
-  palavrasChave: ["analista", "líder", "assistente"],
+  palavrasChave: ["analista de logística", "líder de logística", "assistente de logística"],
+  area: "logística",
   cidadeBase: "Franco da Rocha, SP",
   cidadesAlvo: [
     "Franco da Rocha",

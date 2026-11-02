@@ -1,36 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🦇 Radar de Vagas
 
-## Getting Started
+App + dashboard que lê seu currículo, busca vagas por palavra-chave e região, adapta o currículo para cada vaga com o Claude e acompanha suas candidaturas 24h.
 
-First, run the development server:
+> **Sem robô no LinkedIn.** Automatizar login e candidatura no LinkedIn viola os Termos de Uso e pode banir a conta. O app prepara tudo e a candidatura final é aprovada por você; envio automático só em plataformas que permitem.
+
+## Etapas
+
+- [x] **1. Currículo e alvo** – upload do PDF, extração do perfil com Claude, configuração de palavras-chave e região
+- [ ] **2. Radar de vagas** – coleta em fontes permitidas (Gupy, Indeed, Adzuna, sites de empresas)
+- [ ] **3. Currículo sob medida** – versão adaptada por vaga + nota de compatibilidade
+- [ ] **4. Dashboard** – vagas, currículos gerados e status das candidaturas
+- [ ] **5. 24 horas** – agendador rodando as buscas sozinho
+
+## Rodando
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # coloque sua ANTHROPIC_API_KEY
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Os dados ficam em `data/` (fora do git). Na Etapa 2 migram para o Supabase.
